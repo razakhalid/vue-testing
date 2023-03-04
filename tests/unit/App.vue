@@ -1,42 +1,28 @@
 <template>
-  <nav>
-    <a href="/profile" id="profile">My Profile</a>
-    <a v-if="admin" id="admin" href="/admin" class="profile">Admin</a>
-  </nav>
-<!--  <button @click="increment"></button>-->
-<!--  <div v-if="count % 2 === 0">Count: {{ count }}. Count is even</div>-->
-<!--  <div v-if="count % 2 !== 0">Count: {{ count }}. Count is odd</div>-->
-  <button @click="handleClick"></button>
+  <div>
+    <!--  <Login></Login>-->
+  </div>
+
 </template>
 
 <script>
-import axios from 'axios';
+import axios from 'axios'
+import Login from '../../tests/unit/Login'
 export default {
   name: "App",
   data() {
     return {
-      count: 0,
-      admin: false
+      posts: null
     }
-  },
-  computed: {
-    // count() {
-    //   return this.$store.state.count;
-    //   // return this.$store.state.count;
-    // }
   },
   methods: {
-    increment() {
-      this.$store.commit('increment');
-    },
-    handleClick() {
-      this.count += 1;
-      this.$emit('count', this.count, 'hello');
+    async getPosts() {
+      this.posts = await axios.get('/api/posts')
     }
   },
-  // mounted() {
-  //   axios.get('/')
-  // }
+  components: {
+    Login
+  }
 }
 </script>
 
