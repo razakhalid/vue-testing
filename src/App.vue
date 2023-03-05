@@ -103,28 +103,158 @@
       <!-- utilities -->
 
     </div>
+    <RenderlessPassword
+        :input="input"
+        :matching="matching"
+        :complexity="complexity"
+        :complexity-style="getComplexityStyle"
+        :valid="valid"
+        :min-complexity="minComplexity"
+        @input-evt="handleEmit"
+    >
+      <template #default>
+
+      </template>
+    </RenderlessPassword>
+    <tab-container v-model:activeTabId="activeTabId">
+      <tab tabId="1">Tab #1</tab>
+      <tab tabId="2">Tab #2</tab>
+      <tab tabId="3">Tab #3</tab>
+      <tab-content tabId="1">Content #1</tab-content> <tab-content tabId="2">Content #2</tab-content> <tab-content tabId="3">Content #3</tab-content>
+    </tab-container>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
-import allAirports from '@/data/airports.js'
-import AirportCard from '@/components/AirportCard.vue'
+import RenderlessPassword from '../tests/unit/RenderlessPassword';
 import Button from '@/components/Button.vue'
+import { TabContent, Tab, TabContainer } from '@/components/tab';
 
 export default {
-  components: {
-    AirportCard,
-    Button
+  data() {
+    return {
+      input: {
+        password: '',
+        confirmation: ''
+      },
+      complexity: null,
+      activeTabId: '1'
+    }
   },
-  setup() {
-    const airports = ref(allAirports)
-    return { airports }
+  components: {
+    Button,
+    RenderlessPassword,
+    TabContent,
+    Tab,
+    TabContainer
+  },
+  mounted() {
+    // alert(this.vm.$slots.default())
+  },
+  computed: {
+    matching() {
+      return isMatching(this.input.password, this.input.confirmation);
+    },
+    minComplexity() {
+      return 3
+    },
+    getComplexityStyle() {
+      return complexityStyle(this.input.password)
+    },
+    valid() {
+      return this.complexity >= this.minComplexity && this.matching;
+    }
+  },
+  methods: {
+    handleEmit(evt) {
+      const key = evt['key']
+      const value = evt['value']
+
+      switch (key) {
+        case 'password':
+          this.complexity = calcComplexity(value)
+          this.input.password = value;
+          break;
+        case 'confirmation':
+          this.input.confirmation = value;
+          break;
+        default:
+          break;
+      }
+
+
+      // console.log(this.complexity)
+    },
+    complexityStyle() {
+      return complexityStyle(this.complexity)
+    }
   }
 }
+
+const complexityStyle = (complexity) => {
+  if (complexity >= 3) {
+    return 'high'
+  }
+  if (complexity >= 2) {
+    return 'mid'
+  }
+  if (complexity >= 1) {
+    return 'low'
+  }
+}
+
+export function isMatching(password, confirmation) {
+  if (!password || !confirmation) {
+    return false;
+  }
+  console.log(password, confirmation)
+  return password === confirmation;
+}
+
+export function calcComplexity(val) {
+  let complexity;
+  if (!val) {
+    return 0
+  }
+  if (val.length >= 10) {
+    return 3
+  }
+  if (val.length >= 7) {
+    return 2
+  }
+  if (val.length >= 5) {
+    return 1
+  }
+  if (val.length < 5) {
+    return 'too short'
+  }
+
+}
+
 </script>
 
 <style lang="scss">
 @import '../src/scss/index.scss';
+.tabs {
+  display: flex;
+}
+.tab {
+  border: 1px solid;
+  cursor: pointer;
+  padding: 10px;
+  width: 100px;
+  text-align: center;
+}
+.tab:first-child {
+  border-right: none;
+}
+.active {
+  color: blue;
+  border-bottom: 5px solid blue;
+}
+.content {
+  margin: 10px;
+  font-size: 1.5rem;
+}
 
 </style>
